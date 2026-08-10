@@ -2,7 +2,7 @@
 
 Este repositório contém a arquitetura de dados local e a API RESTful desenvolvidas para dar suporte quantitativo à pesquisa de evasão acadêmica nos cursos de Ciência da Computação no Brasil.
 
-O objetivo desta etapa técnica é consumir as planilhas finais tratadas do Censo da Educação Superior (INEP), estruturá-las em um banco de dados relacional e disponibilizar os indicadores acadêmicos via API para análise.
+O objetivo desta etapa é consumir as planilhas finais tratadas do Censo da Educação Superior (INEP), estruturá-las em um banco de dados relacional e disponibilizar os indicadores acadêmicos via API para análise.
 
 ## Base Oficial e Recorte Metodológico
 
