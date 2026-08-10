@@ -2,7 +2,7 @@
 
 Este repositório contém a arquitetura de dados local e a API RESTful desenvolvidas para dar suporte quantitativo à pesquisa de evasão acadêmica nos cursos de Ciência da Computação no Brasil.
 
-O objetivo desta etapa técnica é simples: consumir as planilhas finais tratadas do Censo da Educação Superior (INEP), estruturá-las em um banco de dados relacional e disponibilizar os indicadores acadêmicos via API para análise.
+O objetivo desta etapa técnica é consumir as planilhas finais tratadas do Censo da Educação Superior (INEP), estruturá-las em um banco de dados relacional e disponibilizar os indicadores acadêmicos via API para análise.
 
 ## Base Oficial e Recorte Metodológico
 
@@ -18,7 +18,7 @@ Os arquivos que compõem o pipeline de extração, armazenamento e disponibiliza
 
 | Arquivo | Finalidade |
 | :--- | :--- |
-| `estrutura_banco.sql` | Arquitetura DDL do banco; cria o schema `dados`, tabelas e índices. |
+| `estrutura_banco.sql` | Arquitetura DDL do banco; cria o esquema `dados`, tabelas e índices. |
 | `importar_planilhas.py` | Pipeline de extração e carga (ETL); baixa os microdados em CSV e popula o PostgreSQL. |
 | `api.py` | Backend em FastAPI que expõe os indicadores de evasão para consulta. |
 | `diagrama.png` | Modelagem visual de Entidade-Relacionamento do banco de dados local. |
