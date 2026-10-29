@@ -1,0 +1,52 @@
+# visao simplificada para o Power BI (publico geral)
+# o Power BI enxerga cada view como uma tabela
+
+views:
+  - name: painel_publico
+    title: Evasão em Computação - Painel público
+    description: Indicadores agregados do INEP com rótulos amigáveis.
+    cubes:
+      - join_path: inep_cursos
+        includes:
+          - ano
+          - instituicao
+          - sigla_instituicao
+          - curso
+          - grau_academico
+          - modalidade
+          - rede
+          - organizacao_academica
+          - cursos
+          - instituicoes
+          - vagas
+          - inscritos
+          - ingressantes
+          - matriculas
+          - concluintes
+          - trancados
+          - desvinculados
+          - transferidos
+          - media_matriculas_por_curso
+
+  - name: painel_publico_uf
+    title: Evasão em Computação - Painel por UF
+    description: Indicadores do INEP por UF/município, com filtros do curso.
+    cubes:
+      - join_path: inep_localidade
+        includes:
+          - ano
+          - uf
+          - municipio
+          - dimensao
+          - ingressantes
+          - matriculas
+          - concluintes
+          - trancados
+          - desvinculados
+          - transferidos
+      - join_path: inep_localidade.inep_cursos
+        prefix: true
+        includes:
+          - rede
+          - modalidade
+          - grau_academico
