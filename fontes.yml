@@ -1,0 +1,42 @@
+# lista de fontes que o importar_planilhas.py carrega
+# para adicionar uma instituicao nova: copie um bloco, troque nome/origem/tabela
+# e depois crie (ou ajuste) o modelo correspondente em cube/model
+#
+# campos:
+#   nome         identificador unico da fonte
+#   instituicao  quem forneceu os dados
+#   origem       url ou caminho local do arquivo (.csv ou .xlsx)
+#   tabela       nome da tabela criada no schema "bruto"
+#   separador    separador do csv (padrao ";")
+#   encoding     encoding do csv (padrao "utf-8-sig")
+#   numericas    colunas convertidas para numero (aceita curinga, ex: "qt_*")
+#   chave        colunas que identificam uma linha (vira chave primaria);
+#                sem chave, o importador cria a coluna id_linha
+#   indices      colunas que ganham indice
+
+dicionario: dicionario/dicionario.csv
+
+fontes:
+  - nome: inep_computacao
+    instituicao: INEP - Censo da Educação Superior
+    descricao: Planilha oficial tratada, um registro por ano/IES/curso (2009-2024).
+    origem: https://raw.githubusercontent.com/efdourado/evasao-computacao/main/data/processed/oficial/planilha_oficial_computacao.csv
+    tabela: inep_computacao
+    numericas: [nu_ano_censo, "qt_*"]
+    chave: [nu_ano_censo, co_ies, co_curso]
+    indices: [co_ies, ds_tp_rede]
+
+  - nome: inep_computacao_localidade
+    instituicao: INEP - Censo da Educação Superior
+    descricao: Mesma base aberta por município/polo. As métricas são repartidas entre as linhas, então a soma bate com a tabela principal.
+    origem: https://raw.githubusercontent.com/efdourado/evasao-computacao/main/data/processed/oficial/planilha_oficial_computacao_expandida.csv
+    tabela: inep_computacao_localidade
+    numericas: [nu_ano_censo, "qt_*"]
+    indices: [nu_ano_censo, sg_uf]
+
+  # exemplo de instituicao com menos dados (so matricula). descomente quando chegar.
+  # - nome: ifb
+  #   instituicao: Instituto Federal de Brasília
+  #   origem: dados/ifb_matriculas.csv
+  #   tabela: ifb
+  #   numericas: [ano, "qt_*"]
