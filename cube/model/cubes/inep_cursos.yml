@@ -1,0 +1,144 @@
+# traducao da tabela bruto.inep_computacao (um registro por ano/IES/curso)
+# se a planilha do INEP mudar nome de coluna, so este arquivo muda
+
+cubes:
+  - name: inep_cursos
+    sql_table: bruto.inep_computacao
+    title: INEP - Cursos de Computação
+    description: Censo da Educação Superior, um registro por ano/IES/curso (2009-2024).
+
+    dimensions:
+      - name: id
+        sql: "{CUBE}.nu_ano_censo || '-' || {CUBE}.co_ies || '-' || {CUBE}.co_curso"
+        type: string
+        primary_key: true
+        public: false
+
+      - name: ano
+        sql: nu_ano_censo
+        type: number
+        title: Ano do Censo
+      - name: cod_instituicao
+        sql: co_ies
+        type: string
+        title: Código da IES
+      - name: instituicao
+        sql: no_ies
+        type: string
+        title: Instituição
+      - name: sigla_instituicao
+        sql: sg_ies
+        type: string
+        title: Sigla da IES
+      - name: cod_curso
+        sql: co_curso
+        type: string
+        title: Código do curso
+      - name: curso
+        sql: no_curso_normalizado
+        type: string
+        title: Curso
+      - name: grau_academico
+        sql: ds_tp_grau_academico
+        type: string
+        title: Grau acadêmico
+      - name: modalidade
+        sql: ds_tp_modalidade_ensino
+        type: string
+        title: Modalidade
+      - name: rede
+        sql: ds_tp_rede
+        type: string
+        title: Rede
+      - name: categoria_administrativa
+        sql: ds_tp_categoria_administrativa
+        type: string
+        title: Categoria administrativa
+      - name: organizacao_academica
+        sql: ds_tp_organizacao_academica
+        type: string
+        title: Organização acadêmica
+      - name: area_detalhada
+        sql: no_area_detalhada
+        type: string
+        title: Área detalhada
+      - name: rotulo_area
+        sql: no_rotulo_area
+        type: string
+        title: Rótulo da área
+      - name: classificacao_area
+        sql: ds_classificacao_area
+        type: string
+        title: Classificação de área
+        description: CINE, CINE Brasil ou OCDE (2017).
+      - name: nivel_comparabilidade
+        sql: ds_nivel_comparabilidade
+        type: string
+        title: Nível de comparabilidade
+        description: media_ocde_proxy indica aproximação (ano de 2017).
+      - name: ufs
+        sql: sg_uf_lista
+        type: string
+        title: UFs do curso
+
+    measures:
+      - name: cursos
+        type: count
+        title: Cursos
+      - name: instituicoes
+        sql: co_ies
+        type: count_distinct
+        title: Instituições
+
+      - name: vagas
+        sql: qt_vg_total
+        type: sum
+        title: Vagas
+      - name: inscritos
+        sql: qt_inscrito_total
+        type: sum
+        title: Inscritos
+      - name: ingressantes
+        sql: qt_ing
+        type: sum
+        title: Ingressantes
+      - name: matriculas
+        sql: qt_mat
+        type: sum
+        title: Matrículas
+      - name: concluintes
+        sql: qt_conc
+        type: sum
+        title: Concluintes
+      - name: trancados
+        sql: qt_sit_trancada
+        type: sum
+        title: Matrículas trancadas
+      - name: desvinculados
+        sql: qt_sit_desvinculado
+        type: sum
+        title: Desvinculados
+        description: Fluxo anual. Não é taxa de evasão (ver docs/01_visao_geral.md).
+      - name: transferidos
+        sql: qt_sit_transferido
+        type: sum
+        title: Transferidos
+      - name: falecidos
+        sql: qt_sit_falecido
+        type: sum
+        title: Falecidos
+
+      # medias por curso (exemplo de metrica "mastigada")
+      - name: media_matriculas_por_curso
+        sql: qt_mat
+        type: avg
+        format: number
+        title: Média de matrículas por curso
+      - name: media_ingressantes_por_curso
+        sql: qt_ing
+        type: avg
+        title: Média de ingressantes por curso
+      - name: media_concluintes_por_curso
+        sql: qt_conc
+        type: avg
+        title: Média de concluintes por curso

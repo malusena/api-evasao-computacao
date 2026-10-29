@@ -1,0 +1,86 @@
+# traducao da tabela bruto.inep_computacao_localidade (curso aberto por municipio/polo)
+# as metricas sao repartidas entre as linhas: somar por UF bate com o total nacional
+
+cubes:
+  - name: inep_localidade
+    sql_table: bruto.inep_computacao_localidade
+    title: INEP - Cursos por localidade
+    description: Mesma base do INEP aberta por município/polo EaD.
+
+    joins:
+      - name: inep_cursos
+        relationship: many_to_one
+        sql: >
+          {CUBE}.nu_ano_censo = {inep_cursos}.nu_ano_censo
+          AND {CUBE}.co_ies = {inep_cursos}.co_ies
+          AND {CUBE}.co_curso = {inep_cursos}.co_curso
+
+    dimensions:
+      - name: id
+        sql: id_linha
+        type: number
+        primary_key: true
+        public: false
+
+      - name: ano
+        sql: nu_ano_censo
+        type: number
+        title: Ano do Censo
+      - name: uf
+        sql: sg_uf
+        type: string
+        title: UF
+      - name: municipio
+        sql: no_municipio
+        type: string
+        title: Município
+      - name: cod_municipio
+        sql: co_municipio
+        type: string
+        title: Código do município (IBGE)
+      - name: dimensao
+        sql: ds_tp_dimensao
+        type: string
+        title: Dimensão
+      - name: nivel_geografico
+        sql: ds_nivel_geografico
+        type: string
+        title: Nível geográfico
+
+    measures:
+      - name: vagas
+        sql: qt_vg_total
+        type: sum
+        title: Vagas
+      - name: inscritos
+        sql: qt_inscrito_total
+        type: sum
+        title: Inscritos
+      - name: ingressantes
+        sql: qt_ing
+        type: sum
+        title: Ingressantes
+      - name: matriculas
+        sql: qt_mat
+        type: sum
+        title: Matrículas
+      - name: concluintes
+        sql: qt_conc
+        type: sum
+        title: Concluintes
+      - name: trancados
+        sql: qt_sit_trancada
+        type: sum
+        title: Matrículas trancadas
+      - name: desvinculados
+        sql: qt_sit_desvinculado
+        type: sum
+        title: Desvinculados
+      - name: transferidos
+        sql: qt_sit_transferido
+        type: sum
+        title: Transferidos
+      - name: falecidos
+        sql: qt_sit_falecido
+        type: sum
+        title: Falecidos

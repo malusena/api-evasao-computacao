@@ -23,14 +23,16 @@ Nesses casos, a tabela no banco de dados armazena as *flags* `DS_CLASSIFICACAO_A
 
 ## Modelagem de Dados
 
-A arquitetura de dados opera inteiramente dentro do schema `dados`, separando a carga analítica do schema `public` padrão do PostgreSQL. 
+O banco foi pensado para receber dados de várias instituições, cada uma com um conjunto diferente de informações (uma pode mandar só matrícula, outra matrícula e outros dados). Por isso, nenhuma estrutura de colunas fica fixa no banco:
 
-A estrutura é dividida em:
-1. **Tabela Principal (`planilha_oficial_computacao`)**: Base central recomendada para análises de séries históricas. Possui chave composta primária (`nu_ano_censo`, `co_ies`, `co_curso`) garantindo a integridade referencial.
-2. **Tabela Expandida (`planilha_oficial_computacao_expandida`)**: Preserva a granularidade territorial original dos dados. Recomendada exclusivamente para consultas geográficas e dimensionamento espacial, relacionando-se à tabela principal via chave estrangeira.
+1. **Schema `bruto`**: uma tabela por fonte, com as colunas exatamente como vieram no arquivo. As tabelas são criadas pelo `importar_planilhas.py` a partir do `fontes.yml`. Hoje existem:
+   * `bruto.inep_computacao`: base principal do INEP, um registro por ano/IES/curso, com chave primária (`nu_ano_censo`, `co_ies`, `co_curso`). Recomendada para séries históricas.
+   * `bruto.inep_computacao_localidade`: a mesma base aberta por município/polo EaD. As métricas são repartidas entre as linhas, então a soma por UF bate com o total nacional. Recomendada para consultas geográficas.
+2. **Schema `meta`**: `meta.fontes` registra cada fonte carregada (origem, quantidade de linhas, colunas, data da carga) e `meta.dicionario` guarda o significado de cada coluna.
+3. **Cube** (`cube/model`): é a camada que dá nome e significado aos dados. Cada fonte tem um cubo próprio, e o cubo `indicadores` junta todas as fontes num vocabulário único (`matriculas`, `ingressantes`, `concluintes`...). Métricas que uma fonte não fornece aparecem como vazias (null).
 
 ## Indicadores de Evasão e Desvinculação
 
 As variáveis acadêmicas (`QT_MAT`, `QT_SIT_TRANCADA`, `QT_SIT_DESVINCULADO`, `QT_SIT_TRANSFERIDO`) representam métricas brutas fornecidas pelo INEP. 
 
-**Nota Metodológica:** A antiga razão matemática de *desvinculados/matrículas* não é calculada diretamente pelo banco de dados ou pela API, pois compara um fluxo anual com um estoque e pode produzir valores distorcidos.
+**Nota Metodológica:** A antiga razão matemática de *desvinculados/matrículas* não é calculada diretamente pelo banco de dados, pela API ou pelo Cube, pois compara um fluxo anual com um estoque e pode produzir valores distorcidos.

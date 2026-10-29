@@ -1,0 +1,32 @@
+fonte;coluna;nome_exibicao;descricao
+inep_computacao;nu_ano_censo;Ano do Censo;Ano de referência do Censo da Educação Superior.
+inep_computacao;co_ies;Código da IES;Código da instituição de ensino superior no INEP.
+inep_computacao;no_ies;Instituição;Nome da instituição de ensino superior.
+inep_computacao;sg_ies;Sigla da IES;Sigla da instituição.
+inep_computacao;co_curso;Código do curso;Código do curso no INEP.
+inep_computacao;no_curso;Curso;Nome do curso como informado pela IES.
+inep_computacao;no_curso_normalizado;Curso (normalizado);Nome do curso padronizado pelo grupo de tratamento.
+inep_computacao;ds_classificacao_area;Classificação de área;Classificação usada no ano (CINE, CINE Brasil ou OCDE).
+inep_computacao;ds_nivel_comparabilidade;Nível de comparabilidade;Grau de equivalência com o recorte CINE (ex.: media_ocde_proxy em 2017).
+inep_computacao;no_area_geral;Área geral;Área geral da classificação de cursos.
+inep_computacao;no_area_detalhada;Área detalhada;Área detalhada da classificação de cursos.
+inep_computacao;no_rotulo_area;Rótulo da área;Rótulo da classificação de cursos.
+inep_computacao;ds_tp_grau_academico;Grau acadêmico;Bacharelado, Tecnológico ou Licenciatura.
+inep_computacao;ds_tp_modalidade_ensino;Modalidade;Presencial ou a distância.
+inep_computacao;ds_tp_categoria_administrativa;Categoria administrativa;Categoria administrativa da IES.
+inep_computacao;ds_tp_rede;Rede;Rede pública ou privada.
+inep_computacao;ds_tp_organizacao_academica;Organização acadêmica;Universidade, centro universitário, faculdade, IF etc.
+inep_computacao;sg_uf_lista;UFs do curso;Lista de UFs onde o curso é oferecido.
+inep_computacao;qt_vg_total;Vagas;Total de vagas oferecidas.
+inep_computacao;qt_inscrito_total;Inscritos;Total de inscritos.
+inep_computacao;qt_ing;Ingressantes;Quantidade de ingressantes no ano.
+inep_computacao;qt_mat;Matrículas;Quantidade de matrículas (estoque) no ano.
+inep_computacao;qt_conc;Concluintes;Quantidade de concluintes no ano.
+inep_computacao;qt_sit_trancada;Matrículas trancadas;Alunos com matrícula trancada.
+inep_computacao;qt_sit_desvinculado;Desvinculados;Alunos desvinculados do curso no ano (fluxo anual, não é taxa de evasão).
+inep_computacao;qt_sit_transferido;Transferidos;Alunos transferidos para outro curso da mesma IES.
+inep_computacao;qt_sit_falecido;Falecidos;Alunos falecidos.
+inep_computacao_localidade;sg_uf;UF;Sigla da UF da oferta (local do curso ou polo EaD).
+inep_computacao_localidade;no_municipio;Município;Município da oferta (local do curso ou polo EaD).
+inep_computacao_localidade;ds_tp_dimensao;Dimensão;Tipo de oferta (presencial, EaD no Brasil, EaD exterior etc.).
+inep_computacao_localidade;ds_nivel_geografico;Nível geográfico;Nível de detalhe da localização disponível para a linha.

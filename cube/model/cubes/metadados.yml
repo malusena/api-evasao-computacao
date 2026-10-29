@@ -1,0 +1,60 @@
+# deixa o dicionario e a lista de fontes consultaveis pela API e pelo BI
+
+cubes:
+  - name: dicionario
+    sql_table: meta.dicionario
+    title: Dicionário de dados
+    description: Significado de cada coluna de cada fonte.
+    dimensions:
+      - name: id
+        sql: "{CUBE}.fonte || '.' || {CUBE}.coluna"
+        type: string
+        primary_key: true
+        public: false
+      - name: fonte
+        sql: fonte
+        type: string
+      - name: coluna
+        sql: coluna
+        type: string
+      - name: nome_exibicao
+        sql: nome_exibicao
+        type: string
+      - name: descricao
+        sql: descricao
+        type: string
+    measures:
+      - name: colunas
+        type: count
+
+  - name: fontes
+    sql_table: meta.fontes
+    title: Fontes carregadas
+    description: Fontes de dados disponíveis e quando foram carregadas.
+    dimensions:
+      - name: nome
+        sql: nome
+        type: string
+        primary_key: true
+        public: true
+      - name: instituicao
+        sql: instituicao
+        type: string
+      - name: descricao
+        sql: descricao
+        type: string
+      - name: origem
+        sql: origem
+        type: string
+      - name: tabela
+        sql: tabela
+        type: string
+      - name: carregado_em
+        sql: carregado_em
+        type: time
+    measures:
+      - name: total_fontes
+        type: count
+      - name: linhas
+        sql: qt_linhas
+        type: sum
