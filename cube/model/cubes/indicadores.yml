@@ -1,0 +1,133 @@
+# cubo unificado: junta todas as fontes num vocabulario so
+# aqui o cube faz o papel de "tradutor". cada fonte entra com um SELECT
+# que renomeia suas colunas para os nomes comuns. o que a fonte nao tem vira NULL.
+#
+# para adicionar uma instituicao nova, acrescente um bloco "UNION ALL SELECT ..."
+# (tem um exemplo comentado no fim do sql)
+#
+# atencao: o INEP ja inclui as instituicoes que mandarem dados proprios.
+# filtre ou agrupe por "fonte" para nao contar a mesma matricula duas vezes.
+
+cubes:
+  - name: indicadores
+    title: Indicadores (todas as fontes)
+    description: Métricas acadêmicas com nomes padronizados, independentes da fonte.
+    sql: |
+      SELECT
+        'INEP' AS fonte,
+        nu_ano_censo AS ano,
+        co_ies AS cod_instituicao,
+        no_ies AS instituicao,
+        co_curso AS cod_curso,
+        no_curso_normalizado AS curso,
+        ds_tp_rede AS rede,
+        ds_tp_modalidade_ensino AS modalidade,
+        ds_tp_grau_academico AS grau_academico,
+        qt_vg_total AS vagas,
+        qt_inscrito_total AS inscritos,
+        qt_ing AS ingressantes,
+        qt_mat AS matriculas,
+        qt_conc AS concluintes,
+        qt_sit_trancada AS trancados,
+        qt_sit_desvinculado AS desvinculados,
+        qt_sit_transferido AS transferidos
+      FROM bruto.inep_computacao
+
+      -- UNION ALL
+      -- SELECT
+      --   'IFB', ano, 'cod_ifb', 'Instituto Federal de Brasília', cod_curso, curso,
+      --   'Pública', modalidade, grau,
+      --   NULL, NULL, NULL, qt_matricula, NULL, NULL, NULL, NULL
+      -- FROM bruto.ifb
+
+    dimensions:
+      - name: id
+        sql: "{CUBE}.fonte || '-' || {CUBE}.ano || '-' || {CUBE}.cod_instituicao || '-' || {CUBE}.cod_curso"
+        type: string
+        primary_key: true
+        public: false
+
+      - name: fonte
+        sql: fonte
+        type: string
+        title: Fonte
+      - name: ano
+        sql: ano
+        type: number
+        title: Ano
+      - name: cod_instituicao
+        sql: cod_instituicao
+        type: string
+        title: Código da instituição
+      - name: instituicao
+        sql: instituicao
+        type: string
+        title: Instituição
+      - name: cod_curso
+        sql: cod_curso
+        type: string
+        title: Código do curso
+      - name: curso
+        sql: curso
+        type: string
+        title: Curso
+      - name: rede
+        sql: rede
+        type: string
+        title: Rede
+      - name: modalidade
+        sql: modalidade
+        type: string
+        title: Modalidade
+      - name: grau_academico
+        sql: grau_academico
+        type: string
+        title: Grau acadêmico
+
+    measures:
+      - name: cursos
+        type: count
+        title: Cursos
+      - name: vagas
+        sql: vagas
+        type: sum
+        title: Vagas
+      - name: inscritos
+        sql: inscritos
+        type: sum
+        title: Inscritos
+      - name: ingressantes
+        sql: ingressantes
+        type: sum
+        title: Ingressantes
+      - name: matriculas
+        sql: matriculas
+        type: sum
+        title: Matrículas
+      - name: concluintes
+        sql: concluintes
+        type: sum
+        title: Concluintes
+      - name: trancados
+        sql: trancados
+        type: sum
+        title: Matrículas trancadas
+      - name: desvinculados
+        sql: desvinculados
+        type: sum
+        title: Desvinculados
+        description: Fluxo anual. Não é taxa de evasão.
+      - name: transferidos
+        sql: transferidos
+        type: sum
+        title: Transferidos
+      - name: media_matriculas_por_curso
+        sql: matriculas
+        type: avg
+        title: Média de matrículas por curso
+
+      # TODO: "average score" pedido pelo professor. o campo ainda nao existe
+      # em nenhuma fonte; quando chegar, entra aqui como:
+      # - name: media_score
+      #   sql: score
+      #   type: avg
