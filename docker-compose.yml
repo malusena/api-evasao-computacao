@@ -1,0 +1,51 @@
+# sobe o banco e o cube juntos: docker compose up -d
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - dados_postgres:/var/lib/postgresql/data
+      # roda so na primeira vez que o volume e criado
+      - ./estrutura_banco.sql:/docker-entrypoint-initdb.d/01_estrutura_banco.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+
+  cube:
+    image: cubejs/cube:v1.8.5
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      CUBEJS_DB_TYPE: postgres
+      CUBEJS_DB_HOST: postgres
+      CUBEJS_DB_PORT: 5432
+      CUBEJS_DB_NAME: ${POSTGRES_DB}
+      CUBEJS_DB_USER: ${POSTGRES_USER}
+      CUBEJS_DB_PASS: ${POSTGRES_PASSWORD}
+      CUBEJS_API_SECRET: ${CUBEJS_API_SECRET}
+      # modo dev liga o Playground em http://localhost:4000 (desligar em producao)
+      CUBEJS_DEV_MODE: "true"
+      # API SQL (protocolo do postgres) para o Power BI
+      CUBEJS_PG_SQL_PORT: 15432
+      CUBEJS_SQL_USER: ${CUBEJS_SQL_USER}
+      CUBEJS_SQL_PASSWORD: ${CUBEJS_SQL_PASSWORD}
+      # o padrao do cube corta em 50 mil linhas; a base por municipio tem ~315 mil
+      CUBEJS_DB_QUERY_DEFAULT_LIMIT: 1000000
+      CUBEJS_DB_QUERY_LIMIT: 1000000
+    ports:
+      - "4000:4000"   # API REST/JSON + Playground
+      - "15432:15432" # API SQL (Power BI)
+    volumes:
+      - ./cube:/cube/conf
+
+volumes:
+  dados_postgres:

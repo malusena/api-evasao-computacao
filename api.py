@@ -1,5 +1,9 @@
-from fastapi import FastAPI
-from sqlalchemy import create_engine, text
+# API original em FastAPI. continua funcionando, mas a API principal para os
+# pesquisadores agora e a do Cube (ver docs/03_cube_e_power_bi.md)
+from fastapi import FastAPI, HTTPException
+from sqlalchemy import text
+
+from config import criar_engine
 
 
 # inicializa a API
@@ -8,8 +12,8 @@ app = FastAPI(
     description="API para análise de dados do Censo da Educação Superior"
 )
 
-# conexão com o banco local
-engine = create_engine('postgresql://postgres:admin@localhost:5432/pesquisa_evasao')
+# conexão com o banco (configurada no .env)
+engine = criar_engine()
 
 @app.get("/")
 def raiz():
@@ -17,14 +21,14 @@ def raiz():
 
 @app.get("/estatisticas/{ano}")
 def obter_estatisticas_por_ano(ano: int):
-    # consulta SQL que vai direto na tabela principal
+    # desvinculados e um fluxo anual, nao uma taxa de evasao (ver docs/01_visao_geral.md)
     query = text("""
         SELECT 
             nu_ano_censo AS ano,
             SUM(qt_mat) AS total_matriculas,
-            SUM(qt_sit_desvinculado) AS total_evasao,
+            SUM(qt_sit_desvinculado) AS total_desvinculados,
             SUM(qt_conc) AS total_concluintes
-        FROM dados.planilha_oficial_computacao
+        FROM bruto.inep_computacao
         WHERE nu_ano_censo = :ano
         GROUP BY nu_ano_censo;
     """)
@@ -35,4 +39,4 @@ def obter_estatisticas_por_ano(ano: int):
     if resultado:
         return dict(resultado)
         
-    return {"erro": "Nenhum dado encontrado para o ano informado. Tente um ano entre 2009 e 2024."}
+    raise HTTPException(status_code=404, detail="Nenhum dado encontrado para o ano informado. Tente um ano entre 2009 e 2024.")

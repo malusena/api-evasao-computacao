@@ -1,13 +1,38 @@
 # Guia de Execução e Pipeline
 
-Este documento detalha os passos exatos para replicar a infraestrutura de dados e a API localmente, garantindo a reprodutibilidade da pesquisa.
+Este documento detalha os passos para replicar a infraestrutura de dados e as APIs, garantindo a reprodutibilidade da pesquisa.
 
-## 1. Ambiente Virtual e Dependências
+## 1. Configuração
 
-Recomenda-se isolar a execução do projeto em um ambiente virtual Python para evitar conflitos de versão. Na raiz do repositório, execute:
+Copie o arquivo de exemplo e troque as senhas:
 
 ```bash
-# Criação do ambiente virtual
+cp .env.example .env
+```
+
+O `.env` não é versionado. Ele é lido pelo Docker Compose e pelos scripts Python.
+
+Por padrão, o PostgreSQL fica na porta `5433` do computador, para não conflitar com um PostgreSQL já instalado na `5432`.
+
+## 2. Banco de Dados e Cube (Docker)
+
+```bash
+docker compose up -d
+```
+
+Esse comando sobe dois serviços:
+* **postgres**: na primeira execução, roda o `estrutura_banco.sql`, que cria os schemas `bruto` e `meta`.
+* **cube**: lê o modelo da pasta `cube/model` e expõe a API REST (porta `4000`) e a API SQL para o Power BI (porta `15432`).
+
+Para recriar o banco do zero (apaga os dados):
+
+```bash
+docker compose down -v
+```
+
+## 3. Ambiente Python
+
+```bash
 python -m venv .venv
 
 # Ativação (Windows)
@@ -15,38 +40,43 @@ python -m venv .venv
 # Ativação (Linux/Mac)
 source .venv/bin/activate
 
-# Instalação dos pacotes
-pip install pandas sqlalchemy psycopg2-binary fastapi uvicorn
+pip install -r requirements.txt
 ```
 
-## 2. Preparação do Banco de Dados (PostgreSQL)
-
-O armazenamento utiliza o PostgreSQL. Os dados não ficam versionados no repositório.
-
-1. Inicie seu serviço local do PostgreSQL (porta padrão `5432`).
-2. Crie um banco de dados denominado `pesquisa_evasao`.
-3. Através de um cliente SQL (ex: DBeaver), abra e execute o arquivo `estrutura_banco.sql`. Este comando DDL limpará instâncias anteriores, criará o schema `dados` e estruturará as tabelas e índices necessários.
-
-## 3. Carga de Dados (ETL)
-
-Com o banco preparado, a ingestão das planilhas processadas é feita de forma automatizada pelo script de carga, que faz o download da fonte remota, realiza tipagem via Pandas em memória e insere no banco via SQLAlchemy.
+## 4. Carga de Dados (ETL)
 
 ```bash
-.venv/Scripts/python importar_planilhas.py
+python importar_planilhas.py                  # todas as fontes
+python importar_planilhas.py inep_computacao  # só uma fonte
 ```
-*O processo roda de forma silenciosa. Aguarde a finalização no terminal.*
 
-## 4. Inicialização da API
+Para cada fonte listada no `fontes.yml`, o script:
+1. baixa o arquivo (URL ou caminho local, CSV ou Excel);
+2. padroniza os nomes das colunas (minúsculo, sem espaços);
+3. converte para número as colunas indicadas em `numericas`;
+4. confere se a `chave` não tem linhas repetidas;
+5. recria a tabela em `bruto.<tabela>` com as colunas que vieram no arquivo, mais chave primária e índices;
+6. registra a carga em `meta.fontes`.
 
-O consumo dos dados estruturados é feito através de uma API RESTful. Para iniciar o servidor de desenvolvimento:
+No fim, o script carrega o `dicionario/dicionario.csv` em `meta.dicionario`.
+
+A carga pode ser repetida quantas vezes for preciso: cada execução substitui os dados da fonte.
+
+### Adicionando uma fonte nova
+
+1. Acrescente um bloco no `fontes.yml` (há um exemplo comentado).
+2. Rode `python importar_planilhas.py <nome_da_fonte>`.
+3. Descreva as colunas no `dicionario/dicionario.csv`.
+4. No Cube, acrescente a fonte ao cubo `indicadores` (`cube/model/cubes/indicadores.yml`) e, se precisar de métricas específicas, crie um cubo próprio. Veja [Cube, API REST e Power BI](03_cube_e_power_bi.md).
+
+## 5. API FastAPI (legado)
+
+A API original continua disponível:
 
 ```bash
-.venv/Scripts/uvicorn api:app --reload
+uvicorn api:app --reload
 ```
 
-### Consultas e Validação
+Documentação interativa: `http://127.0.0.1:8000/docs`. O endpoint `/estatisticas/{ano}` retorna matrículas, desvinculados e concluintes do ano.
 
-Com a API em execução, acesse a documentação interativa (Swagger UI) pelo navegador no endereço:
-`http://127.0.0.1:8000/docs`
-
-O painel permite a execução direta de *endpoints* de teste (GET), possibilitando a validação das métricas (ingressantes, matrículas, trancamentos, etc.) filtradas por ano, instituição ou curso, retornando payloads no padrão JSON.
+Para novas consultas, use a API do Cube, que não exige escrever SQL nem alterar código.
